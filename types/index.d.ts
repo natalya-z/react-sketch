@@ -38,7 +38,7 @@ declare module 'react-sketch' {
 		// Class name to pass to container div of canvas
 		className?: string
 		// Style options to pass to container div of canvas
-		style?: {}
+		style?: React.CSSProperties
 	}> {
 
 		/**
@@ -177,6 +177,8 @@ declare module 'react-sketch' {
 		}): void
 		
 		addText(text: string, options?: {}): void
+
+		getElement(): HTMLCanvasElement
 		
 	}
 }

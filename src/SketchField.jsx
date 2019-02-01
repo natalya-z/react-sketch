@@ -562,6 +562,10 @@ class SketchField extends PureComponent {
     canvas.add(iText);
   };
 
+  getElement = () => {
+    return this._fc.getElement()
+  }
+
   componentDidMount = () => {
     let {
       tool,
