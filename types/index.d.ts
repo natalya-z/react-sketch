@@ -177,6 +177,8 @@ declare module 'react-sketch' {
 		}): void
 		
 		addText(text: string, options?: {}): void
+
+		getElement(): HTMLCanvasElement
 		
 	}
 }
