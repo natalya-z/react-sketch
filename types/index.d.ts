@@ -197,7 +197,7 @@ declare module 'react-sketch' {
 		 */
 		setBackgroundFromUrl(url: string, options?: BackgroundImageOptions): void
 		
-		addText(text: string, options?: {}): void
+		addText(text: string, options?: {}): object
 
 		getElement(): HTMLCanvasElement
 		
