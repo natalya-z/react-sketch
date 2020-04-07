@@ -132,7 +132,7 @@ class SketchField extends PureComponent {
         'top': opts.top
       });
       canvas.add(oImg);
-    });
+    }, {crossOrigin:'Anonymous'});
   };
 
   /**
@@ -540,10 +540,13 @@ class SketchField extends PureComponent {
         height: canvas.height
       })
     }
-    let img = new Image();
-    img.onload = () => canvas.setBackgroundImage(new fabric.Image(img),
-      () => canvas.renderAll(), options);
-    img.src = dataUrl
+
+    fabric.Image.fromURL(dataUrl, function(oImg) {
+      canvas.setBackgroundImage(oImg,
+        () => canvas.renderAll(),
+        options
+      )
+    }, {crossOrigin:'Anonymous'});
   };
 
   addText = (text, options = {}) => {
