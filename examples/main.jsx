@@ -148,6 +148,8 @@ class SketchFieldDemo extends React.Component {
       enableCopyPaste: false,
       selection: null,
     };
+
+    this.fontSizeInputTimer = null;
   }
 
   _selectTool = (event) => {
@@ -207,7 +209,16 @@ class SketchFieldDemo extends React.Component {
   };
 
   _undo = () => {
-    this._sketch.undo();
+    const undoObj = this._sketch.undo();
+
+    if (
+      undoObj &&
+      undoObj.type === "i-text" &&
+      undoObj === this.state.selection
+    ) {
+      this.setState({ fontSize: undoObj.fontSize });
+    }
+
     this.setState({
       canUndo: this._sketch.canUndo(),
       canRedo: this._sketch.canRedo(),
@@ -215,7 +226,16 @@ class SketchFieldDemo extends React.Component {
   };
 
   _redo = () => {
-    this._sketch.redo();
+    const redoObj = this._sketch.redo();
+
+    if (
+      redoObj &&
+      redoObj.type === "i-text" &&
+      redoObj === this.state.selection
+    ) {
+      this.setState({ fontSize: redoObj.fontSize });
+    }
+
     this.setState({
       canUndo: this._sketch.canUndo(),
       canRedo: this._sketch.canRedo(),
@@ -293,6 +313,7 @@ class SketchFieldDemo extends React.Component {
       target.scaleY = 1;
       target.scaleX = 1;
       target._clearCache();
+
       this.setState({
         fontSize: target.fontSize,
       });
@@ -512,13 +533,20 @@ class SketchFieldDemo extends React.Component {
                             type="number"
                             value={this.state.fontSize}
                             onChange={({ target: { value } }) => {
-                              const activeObject = this._sketch._fc.getActiveObject();
-
-                              if (activeObject.type === "i-text") {
-                                this.setState({ fontSize: value });
-                                activeObject.fontSize = value;
-                                this._sketch._fc.renderAll();
+                              this.setState({ fontSize: value });
+                              if (this.fontSizeInputTimer) {
+                                clearTimeout(this.fontSizeInputTimer);
                               }
+
+                              this.fontSizeInputTimer = setTimeout(() => {
+                                const activeObject = this._sketch._fc.getActiveObject();
+
+                                if (activeObject.type === "i-text") {
+                                  activeObject.fontSize = value;
+                                  this._sketch._onSaveHistory(activeObject);
+                                  this._sketch._fc.renderAll();
+                                }
+                              }, 300);
                             }}
                           />
                         </div>

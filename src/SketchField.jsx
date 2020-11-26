@@ -161,6 +161,23 @@ class SketchField extends PureComponent {
   };
 
   /**
+   * Action for to save target in history
+   */
+  _onSaveHistory = (target) => {
+    const obj = target;
+    obj.__version += 1;
+
+    const prevState = JSON.stringify(obj.__originalState);
+
+    const objState = obj.toJSON();
+    // record current object state as json and update to originalState
+    obj.__originalState = objState;
+    const currState = JSON.stringify(objState);
+
+    this._history.keep([obj, prevState, currState]);
+  };
+
+  /**
    * Action when an object is moving around inside the canvas
    */
   _onObjectMoving = (e) => {};
@@ -184,18 +201,13 @@ class SketchField extends PureComponent {
   _onObjectModified = (e) => {
     const { onModified } = this.props;
 
-    let obj = e.target;
-    obj.__version += 1;
-    let prevState = JSON.stringify(obj.__originalState);
-    let objState = obj.toJSON();
-    // record current object state as json and update to originalState
-    obj.__originalState = objState;
-    let currState = JSON.stringify(objState);
-    this._history.keep([obj, prevState, currState]);
+    const target = e.target;
 
     if (onModified) {
-      onModified(e.target);
+      onModified(target);
     }
+
+    this._onSaveHistory(target);
   };
 
   /**
@@ -375,7 +387,7 @@ class SketchField extends PureComponent {
    */
   undo = () => {
     let history = this._history;
-    let [obj, prevState, currState] = history.getCurrent();
+    let [obj, prevState] = history.getCurrent();
     history.undo();
     if (obj.__removed) {
       this.setState({ action: false }, () => {
@@ -391,9 +403,12 @@ class SketchField extends PureComponent {
       obj.setCoords();
       this._fc.renderAll();
     }
+
     if (this.props.onChange) {
       this.props.onChange();
     }
+
+    return obj.__removed ? null : obj;
   };
 
   /**
@@ -416,9 +431,12 @@ class SketchField extends PureComponent {
       }
       obj.setCoords();
       canvas.renderAll();
+
       if (this.props.onChange) {
         this.props.onChange();
       }
+
+      return obj;
     }
   };
 
