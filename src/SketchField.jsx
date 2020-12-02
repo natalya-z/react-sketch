@@ -60,6 +60,7 @@ class SketchField extends PureComponent {
     onSelection: PropTypes.func,
     onScalling: PropTypes.func,
     onModified: PropTypes.func,
+    onMouseDown: PropTypes.func
   };
 
   static defaultProps = {
@@ -259,6 +260,12 @@ class SketchField extends PureComponent {
    * Action when the mouse button is pressed down
    */
   _onMouseDown = (e) => {
+    const { onMouseDown } = this.props;
+
+    if(onMouseDown) {
+      onMouseDown(e)
+    }
+
     this._selectedTool.doMouseDown(e);
   };
 
@@ -614,12 +621,12 @@ class SketchField extends PureComponent {
     );
   };
 
-  addText = (text, options = { fontSize: 16 }) => {
+  addText = (text, options = { fontSize: 16 }, pointer = {}) => {
     let canvas = this._fc;
     let iText = new fabric.IText(text, options);
     let opts = {
-      left: (canvas.getWidth() - iText.width) * 0.5,
-      top: (canvas.getHeight() - iText.height) * 0.5,
+      left: pointer.x || (canvas.getWidth() - iText.width) * 0.5,
+      top: pointer.y || (canvas.getHeight() - iText.height) * 0.5,
     };
     Object.assign(options, opts);
     iText.set({
@@ -629,6 +636,7 @@ class SketchField extends PureComponent {
 
     canvas.add(iText);
     canvas.setActiveObject(iText);
+    iText.enterEditing();
   };
 
   componentDidMount = () => {

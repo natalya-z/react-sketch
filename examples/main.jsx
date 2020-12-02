@@ -147,6 +147,7 @@ class SketchFieldDemo extends React.Component {
       fontSize: 16,
       enableCopyPaste: false,
       selection: null,
+      isEnableTextAdd: false,
     };
 
     this.fontSizeInputTimer = null;
@@ -287,11 +288,28 @@ class SketchFieldDemo extends React.Component {
     }
   };
 
-  _addText = () =>
-    this._sketch.addText(this.state.text, {
-      fontSize: 16,
-      lockUniScaling: true,
+  _onChangeIsEnableTextAdd = () => {
+    this.setState((prevState) => {
+      return { ...prevState, isEnableTextAdd: !prevState.isEnableTextAdd };
     });
+  };
+
+  _onMouseDown = ({ pointer: { x, y } }) => {
+    const { isEnableTextAdd } = this.state;
+
+    if (isEnableTextAdd) {
+      this._sketch.addText(
+        this.state.text,
+        {
+          fontSize: 16,
+          lockUniScaling: true,
+        },
+        { x, y }
+      );
+
+      this._onChangeIsEnableTextAdd()
+    }
+  };
 
   _onSelection = (target) => {
     this.setState({ selection: target });
@@ -438,6 +456,7 @@ class SketchFieldDemo extends React.Component {
               onSelection={this._onSelection}
               onScalling={this._onScalling}
               onModified={this.onModified}
+              onMouseDown={this._onMouseDown}
             />
           </div>
           <div className="col-xs-5 col-sm-5 col-md-3 col-lg-3">
@@ -520,7 +539,15 @@ class SketchFieldDemo extends React.Component {
                       />
                     </div>
                     <div className="col-lg-3">
-                      <IconButton color="primary" onClick={this._addText}>
+                      <IconButton
+                        style={{
+                          backgroundColor: this.state.isEnableTextAdd
+                            ? "#D8D8D8"
+                            : null,
+                        }}
+                        color="primary"
+                        onClick={this._onChangeIsEnableTextAdd}
+                      >
                         <AddIcon />
                       </IconButton>
                     </div>
